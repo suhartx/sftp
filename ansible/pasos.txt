@@ -1,0 +1,6 @@
+terraform apply
+ansible ec2_instances -i ansible/inventory -m ping (en el dir principal si tiro la maquina hay que reconfigurarlo)
+para conectarse ssh 
+ssh -i "ssh/id_rsa" ec2-user@ec2-34-245-228-24.eu-west-1.compute.amazonaws.com
+
+
