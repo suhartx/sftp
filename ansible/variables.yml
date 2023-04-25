@@ -1,0 +1,2 @@
+s3_bucket_name: sftpstoragesuhar
+iam_role_name: ec2_role

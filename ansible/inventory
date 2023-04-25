@@ -1,3 +1,2 @@
 [ec2_instances]
-ec2-34-245-228-24.eu-west-1.compute.amazonaws.com ansible_user=ec2-user ansible_ssh_private_key_file=/mnt/c/Users/suhar.txabarri/Desktop/TFG/tf/sftp-main/ssh/id_rsa
-
+ec2-34-246-171-81.eu-west-1.compute.amazonaws.com ansible_user=ec2-user ansible_ssh_private_key_file=/mnt/c/Users/suhar.txabarri/Documents/GitHub/sftp/tf/ssh/id_rsa

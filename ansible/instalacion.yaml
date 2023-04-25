@@ -1,0 +1,83 @@
+- name: Instalación de paquetes para servidor SFTP
+  hosts: ec2_instances
+  become: true
+  tasks:
+  - name: Instalación de paquetes para servidor SFTP
+    become: true
+    yum:
+      name: openssh-server
+      state: latest
+  - name: Crear un grupo
+    become: true
+    group:
+      name: sftp
+  - name: añadir usuario a grupo
+    become: true
+    user:
+      name: sftpuser
+      password: "{{ 'mypassword' | password_hash('sha512', 'mysecretsalt') }}"
+      groups: sftp
+  - name: Configuración del servidor SFTP
+    become: true
+    copy:
+      src: sshd_config
+      dest: /etc/ssh/sshd_config
+  - name: Reinicio del servicio SSH
+    become: true
+    service:
+      name: sshd
+      state: restarted
+  - name: Instalar el repositorio EPEL en Amazon Linux
+    become: true
+    command: amazon-linux-extras install epel -y
+  - name: Instalar paquete s3fs
+    yum:
+      name: s3fs-fuse
+      state: present
+  - name: Configuración de acceso a S3
+    become: true
+    copy:
+      src: passwd-s3fs
+      dest: /etc/passwd-s3fs
+  - name: Cambiar permisos
+    file:
+      path: /etc/passwd-s3fs
+      mode: '0600'
+  # - name: Montaje del bucket de S3
+    # become: true
+    # mount:
+      # name: /mnt/s3bucket
+      # src: "{{ s3_bucket_name }}:/"
+      # fstype: fuse.s3fs
+      # opts: _netdev,iam_role={{ iam_role_name }},uid=1000,gid=1000,url=https://s3.eu-west-1.amazonaws.com,allow_other
+      # state: mounted
+  - name: crear un directorio 
+    become: true
+    command: mkdir /mnt/s3bucket
+  - name: Montaje del bucket de S3 
+    become: true
+    command: s3fs {{ s3_bucket_name }} -o use_cache=/tmp -o allow_other -o uid=1001 -o mp_umask=002 -o multireq_max=5 /mnt/s3bucket
+  - name: Crear directorio /sftpuser
+    file:
+      path: /mnt/s3bucket/sftpuser
+      state: directory
+  - name: Crear archivo example.txt dentro de /sftpuser
+    copy:
+      content: "hello world"
+      dest: /mnt/s3bucket/sftpuser/example.txt
+  # - name: Creación del directorio en el bucket de S3
+    # become: true
+    # file:
+      # name: "{{ s3_bucket_name }}"
+      # path: "/sftpuser"
+      # state: present
+    # register: s3_bucket_result
+  - name: Asignación de permisos al directorio en el bucket de S3
+    become: true
+    file:
+      path: "/mnt/s3bucket/sftpuser"
+      state: directory
+      owner: sftpuser
+      group: sftpuser
+      mode: 0770
+

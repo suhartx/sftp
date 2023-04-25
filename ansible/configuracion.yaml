@@ -1,0 +1,54 @@
+- name: Install and configure SFTP server
+  hosts: ec2
+  become: true
+  vars:
+    sftp_user: sftpuser
+    sftp_group: sftp
+    s3_bucket_name: your-bucket-name
+    iam_role_name: your-iam-role-name
+  tasks:
+    - name: Install OpenSSH server
+      apt:
+        name: openssh-server
+        state: present
+
+    - name: Create SFTP group
+      group:
+        name: "{{ sftp_group }}"
+
+    - name: Create SFTP user
+      user:
+        name: "{{ sftp_user }}"
+        groups: "{{ sftp_group }}"
+        password: "{{ 'sftpuser' | password_hash('sha512', 'mysalt') }}"
+
+    - name: Configure OpenSSH server for SFTP
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+        state: "{{ item.state }}"
+      loop:
+        - { regexp: "^Subsystem sftp .*$", line: "Subsystem sftp internal-sftp", state: present }
+        - { regexp: "^Match Group {{ sftp_group }}$", line: "  ChrootDirectory %h", state: present }
+        - { regexp: "^Match Group {{ sftp_group }}$", line: "  ForceCommand internal-sftp", state: present }
+        - { regexp: "^Match Group {{ sftp_group }}$", line: "  X11Forwarding no", state: present }
+        - { regexp: "^Match Group {{ sftp_group }}$", line: "  AllowTcpForwarding no", state: present }
+
+    - name: Restart OpenSSH server
+      service:
+        name: ssh
+        state: restarted
+
+    - name: Install s3fs
+      apt:
+        name: s3fs
+        state: present
+
+    - name: Mount S3 bucket
+      mount:
+        path: /mnt/s3
+        src: "s3fs#{{ s3_bucket_name }}:/"
+        fstype: fuse.s3fs
+        opts: "iam_role={{ iam_role_name }},allow_other"
+        state: mounted
