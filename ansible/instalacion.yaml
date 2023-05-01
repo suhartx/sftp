@@ -70,6 +70,8 @@
     file:
       path: /etc/passwd-s3fs
       mode: '0600'
+      
+ #######################################################3
   - name: montar bucket
     become: true
     shell:
@@ -78,12 +80,13 @@
       EC2METALATEST=http://169.254.169.254/latest && 
       EC2METAURL=$EC2METALATEST/meta-data/iam/security-credentials/ && 
       EC2ROLE=`curl -s $EC2METAURL` && 
-      S3BUCKETNAME=sftpstoragesuhar && 
+      S3BUCKETNAME={{ bucket_name }} && 
       DOC=`curl -s $EC2METALATEST/dynamic/instance-identity/document` && 
       REGION=`jq -r .region <<< $DOC`
       sudo s3fs $S3BUCKETNAME  -o use_cache=/tmp,allow_other /mnt/s3 -o url="https://s3-$REGION.amazonaws.com" -o nonempty -o mp_umask=022
       sudo chmod -R 777 /mnt/s3/*
       cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
+      sleep 10
   - name: crear un usuario sftp
     become: true
     shell:
@@ -97,7 +100,7 @@
       mkdir -p /mnt/s3/alumnos/sftpuser/escritura
       mkdir -p /mnt/s3/alumnos/sftpuser/lectura
       chown sftpuser:sftpuser /mnt/s3/alumnos/sftpuser/escritura
-      chown sftpuser:sftpuser /mnt/s3/alumnos/sftpuser/lectura
+      chown ec2-user:sftpuser /mnt/s3/alumnos/sftpuser/lectura###############################realizado cambio
       sudo usermod -a -G sftpuser ec2-user
       ln -s /mnt/s3 /home/ec2-user/s3
       rm -f /mnt/s3/alumnos/sftpuser/.bash_logout /mnt/s3/alumnos/sftpuser/.bash_profile /mnt/s3/alumnos/sftpuser/.bashrc 
@@ -124,7 +127,7 @@
       src: usuario.sh
       dest: /home/ec2-user/usuario.sh
       mode: 0755
-
+#############################################################
       
   # - name: crear un directorio 
     # become: true

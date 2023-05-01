@@ -17,6 +17,7 @@ terraform apply -auto-approve
 
 public_dns=$(terraform output -raw public_dns)
 public_ip=$(terraform output -raw public_ip)
+bucket_name=$(terraform output -raw bucket_name)
 s3_bucket_access_key=$(aws configure get aws_access_key_id)
 s3_bucket_secret_key=$(aws configure get aws_secret_access_key)
 
@@ -50,4 +51,4 @@ export ANSIBLE_HOST_KEY_CHECKING=False
 
 ansible -i ansible/inventory -m ping ec2_instances
 
-ansible-playbook -i ansible/inventory ansible/instalacion.yaml --extra-vars "@ansible/variables.yml"
+ansible-playbook -i ansible/inventory ansible/instalacion.yaml --extra-vars "bucket_name=$bucket_name"

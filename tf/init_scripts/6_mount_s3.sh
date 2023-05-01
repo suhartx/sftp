@@ -5,7 +5,7 @@ echo "Mounting S3..."
 EC2METALATEST=http://169.254.169.254/latest && 
 EC2METAURL=$EC2METALATEST/meta-data/iam/security-credentials/ && 
 EC2ROLE=`curl -s $EC2METAURL` && 
-S3BUCKETNAME=sftpstoragesuhar && 
+S3BUCKETNAME=sftpbucketsuhar && 
 DOC=`curl -s $EC2METALATEST/dynamic/instance-identity/document` && 
 REGION=`jq -r .region <<< $DOC`
 

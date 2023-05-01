@@ -10,7 +10,7 @@ resource "aws_iam_role_policy" "ec2_policy" {
        {
            "Effect": "Allow",
            "Action": ["s3:ListBucket"],
-           "Resource": ["arn:aws:s3:::{var.bucket_name}"]
+           "Resource": ["arn:aws:s3:::${var.bucket_name}"]
        },
        {
            "Effect": "Allow",
@@ -19,7 +19,7 @@ resource "aws_iam_role_policy" "ec2_policy" {
                "s3:GetObject",
                "s3:DeleteObject"
            ],
-           "Resource": ["arn:aws:s3:::{var.bucket_name}/*"]
+           "Resource": ["arn:aws:s3:::${var.bucket_name}/*"]
        }
    ]
 }

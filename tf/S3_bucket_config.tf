@@ -10,7 +10,7 @@ resource "aws_s3_bucket" "images_bucket" {
 #  key    = "src-images/"
 #}
 #
-#resource "aws_s3_bucket_object" "images_folder" {
-#  bucket = aws_s3_bucket.images_bucket.id
-#  key    = "Profesor/"
-#}
+resource "aws_s3_bucket_object" "profesor" {
+  bucket = aws_s3_bucket.images_bucket.id
+  key    = "profesor/"
+}
