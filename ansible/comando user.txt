@@ -1,0 +1,28 @@
+     sudo groupadd sftpgroup
+  	  
+
+	  
+	  
+	  sudo useradd -G sftpgroup -d /mnt/s3/sftpuser -s /sbin/nologin sftpuser
+      echo "suhar" | passwd --stdin sftpuser
+      mkdir -p /mnt/s3/sftpuser
+      sudo chown root /mnt/s3/sftpuser
+      sudo chmod g+rx /mnt/s3/sftpuser
+      mkdir -p /mnt/s3/sftpuser/escritura
+      chown sftpuser:sftpuser /mnt/s3/sftpuser/escritura
+	  
+	  
+	  
+	  
+	  
+	        sudo useradd -G sftpgroup -d /srv/sftpuser3 -s /sbin/nologin sftpuser3
+      echo "suhar" | passwd --stdin sftpuser3
+      mkdir -p /srv/sftpuser3
+      sudo chown root /srv/sftpuser3
+      sudo chmod g+rx /srv/sftpuser3
+      mkdir -p /srv/sftpuser3/escritura
+      chown sftpuser3:sftpuser3 /srv/sftpuser3/escritura
+	  
+	  
+	  
+	   setfacl -R -m u:ec2-user:rwx /mnt/s3/*

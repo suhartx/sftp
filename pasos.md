@@ -14,11 +14,10 @@
 5. ejecutar el script iniciacion.sh
 6. ejecutar comando de terraform ansible-playbook -i ansible/inventory ansible/instalacion.yaml --extra-vars "@ansible/variables.yml"
 7. revisar pasos de ansible y corregirlos para hacer lo mismo que en los scripts
+8. crear script para crear usuario(desde la propia maquina)
+9. coger el lambda existente, adaptarlo, para transferencia automatica
+10. correo y pruebas
 
 
 
 
-
-
-
-NO ME DEJA ACCEDER AL SFTP SI NO TENGO UN USUARIO PRESTABLECIDO

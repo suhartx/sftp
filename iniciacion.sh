@@ -16,6 +16,7 @@ echo "Aplicando archivo de configuración Terraform..."
 terraform apply -auto-approve
 
 public_dns=$(terraform output -raw public_dns)
+public_ip=$(terraform output -raw public_ip)
 s3_bucket_access_key=$(aws configure get aws_access_key_id)
 s3_bucket_secret_key=$(aws configure get aws_secret_access_key)
 
@@ -24,6 +25,11 @@ if [ -z "$public_dns" ]; then
   echo "No se pudo extraer el Public IPv4 DNS de la instancia."
 else
   echo "El Public IPv4 DNS de la instancia es: $public_dns"
+fi
+if [ -z "$public_ip" ]; then
+  echo "No se pudo extraer el Public IPv4 de la instancia."
+else
+  echo "El Public IPv4 de la instancia es: $public_ip"
 fi
 
 cd ../ansible
@@ -36,8 +42,12 @@ echo "[ec2_instances]" > inventory
 echo "$public_dns ansible_user=ec2-user ansible_ssh_private_key_file=/mnt/c/Users/suhar.txabarri/Documents/GitHub/sftp/tf/ssh/id_rsa" >> inventory
 echo "El Public IPv4 DNS se ha guardado en el archivo 'inventory'."
 
+echo $public_ip > ../ip_publica
+
 cd ..
 
 export ANSIBLE_HOST_KEY_CHECKING=False
 
-ansible -i ansible/inventory -m ping ec2_instances #-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+ansible -i ansible/inventory -m ping ec2_instances
+
+ansible-playbook -i ansible/inventory ansible/instalacion.yaml --extra-vars "@ansible/variables.yml"

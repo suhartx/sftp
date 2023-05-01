@@ -20,26 +20,16 @@
         - curl-devel
         - libxml2-devel       
       state: latest
-  - name: Configuración del servidor vsftpd
-    become: true
-    copy:
-      src: vsftpd.conf
-      dest: /etc/vsftpd/vsftpd.conf
-  - name: Configuración del servidor openssh-server
-    become: true
-    copy:
-      src: sshd_config
-      dest: /etc/ssh/sshd_config
-  - name: Reinicio del servicio SSH
-    become: true
-    service:
-      name: sshd
-      state: restarted
-  - name: Reinicio del servicio vsftpd
-    become: true
-    service:
-      name: vsftpd
-      state: restarted
+  # - name: Configuración del servidor vsftpd
+    # become: true
+    # copy:
+      # src: vsftpd.conf
+      # dest: /etc/vsftpd/vsftpd.conf
+  # - name: Reinicio del servicio vsftpd
+    # become: true
+    # service:
+      # name: vsftpd
+      # state: restarted
   # - name: Crear un grupo
     # become: true
     # group:
@@ -50,20 +40,20 @@
       # name: sftpuser
       # password: "{{ 'mypassword' | password_hash('sha512', 'mysecretsalt') }}"
       # groups: sftp
-  - name: crear usuario y añadirlo a grupo
-    become: true
-    shell:
-      |
-      echo "Creating SFTP user..."
+  # - name: crear usuario y añadirlo a grupo
+    # become: true
+    # shell:
+      # |
+      # echo "Creating SFTP user..."
       
-      sudo groupadd sftp
-      sudo useradd -m sftpuser -s /bin/bash -g sftp
-      sudo echo "mypassword" | passwd sftpuser --stdin
-      sudo chown root /home/sftpuser
-      sudo chmod 755 /home/sftpuser
-      sudo mkdir /home/sftpuser/s3
-      sudo chown sftpuser:sftp /home/sftpuser/s3
-    
+      # sudo groupadd sftp
+      # sudo useradd -m sftpuser -s /bin/bash -g sftp
+      # sudo echo "mypassword" | passwd sftpuser --stdin
+      # sudo chown root /home/sftpuser
+      # sudo chmod 755 /home/sftpuser
+      # sudo mkdir /home/sftpuser/s3
+      # sudo chown sftpuser:sftp /home/sftpuser/s3
+
   - name: Instalar el repositorio EPEL en Amazon Linux
     become: true
     command: amazon-linux-extras install epel -y
@@ -84,14 +74,58 @@
     become: true
     shell:
       |
+      mkdir /mnt/s3
       EC2METALATEST=http://169.254.169.254/latest && 
       EC2METAURL=$EC2METALATEST/meta-data/iam/security-credentials/ && 
       EC2ROLE=`curl -s $EC2METAURL` && 
       S3BUCKETNAME=sftpstoragesuhar && 
       DOC=`curl -s $EC2METALATEST/dynamic/instance-identity/document` && 
       REGION=`jq -r .region <<< $DOC`
-      sudo s3fs $S3BUCKETNAME  -o use_cache=/tmp,allow_other /mnt/s3 -o url="https://s3-$REGION.amazonaws.com" -o nonempty      
+      sudo s3fs $S3BUCKETNAME  -o use_cache=/tmp,allow_other /mnt/s3 -o url="https://s3-$REGION.amazonaws.com" -o nonempty -o mp_umask=022
       sudo chmod -R 777 /mnt/s3/*
+      cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
+  - name: crear un usuario sftp
+    become: true
+    shell:
+      |
+      sudo groupadd sftpgroup
+      sudo useradd -G sftpgroup -d /mnt/s3/alumnos/sftpuser -s /sbin/nologin sftpuser
+      echo "suhar" | passwd --stdin sftpuser
+      mkdir -p /mnt/s3/alumnos/sftpuser
+      sudo chown root /mnt/s3/alumnos/sftpuser
+      sudo chmod g+rx /mnt/s3/alumnos/sftpuser
+      mkdir -p /mnt/s3/alumnos/sftpuser/escritura
+      mkdir -p /mnt/s3/alumnos/sftpuser/lectura
+      chown sftpuser:sftpuser /mnt/s3/alumnos/sftpuser/escritura
+      chown sftpuser:sftpuser /mnt/s3/alumnos/sftpuser/lectura
+      sudo usermod -a -G sftpuser ec2-user
+      ln -s /mnt/s3 /home/ec2-user/s3
+      rm -f /mnt/s3/alumnos/sftpuser/.bash_logout /mnt/s3/alumnos/sftpuser/.bash_profile /mnt/s3/alumnos/sftpuser/.bashrc 
+      mkdir -p /mnt/s3/profesor
+      chown ec2-user:ec2-user /mnt/s3/profesor
+
+
+  - name: Configuración del servidor openssh-server
+    become: true
+    copy:
+      src: sshd_config
+      dest: /etc/ssh/sshd_config
+      
+      
+  - name: Reinicio del servicio SSH
+    become: true
+    service:
+      name: sshd
+      state: restarted  
+      
+  - name: introduccion del script de creacion de usuario
+    become: true
+    copy:
+      src: usuario.sh
+      dest: /home/ec2-user/usuario.sh
+      mode: 0755
+
+      
   # - name: crear un directorio 
     # become: true
     # command: mkdir /mnt/s3bucket

@@ -1,0 +1,7 @@
+- name: Ejecutar script en servidor remoto de creación de usuario
+  hosts: ec2_instances
+  become: true
+  tasks:
+
+    - name: Ejecutar el script en el servidor remoto
+      shell: "/home/ec2-user/usuario.sh {{ username }} {{ password }}"
