@@ -92,31 +92,31 @@ resource "aws_instance" "ec2_sftp_server" {
  key_name = var.ec2_key_name
  security_groups = ["allow_ssh"]
 
-provisioner "remote-exec" {
-   inline = [
-     "sudo mkdir /tmp/init_scripts",
-     "sudo chmod -R 777 /tmp/init_scripts"
-   ]
-   connection {
-     host        = self.public_ip
-     type        = "ssh"
-     agent       = false
-     private_key = file(var.ec2_private_key_file_path)
-     user        = "ec2-user"
-   }
- }
+#provisioner "remote-exec" {
+#   inline = [
+#     "sudo mkdir /tmp/init_scripts",
+#     "sudo chmod -R 777 /tmp/init_scripts"
+#   ]
+#   connection {
+#     host        = self.public_ip
+#     type        = "ssh"
+#     agent       = false
+#     private_key = file(var.ec2_private_key_file_path)
+#     user        = "ec2-user"
+#   }
+# }
  
- provisioner "file" {
-   source      = "init_scripts/"
-   destination = "/tmp/init_scripts"
-   connection {
-     host        = self.public_ip
-     type        = "ssh"
-     agent       = false
-     private_key = file(var.ec2_private_key_file_path)
-     user        = "ec2-user"
-   }
- }
+# provisioner "file" {
+#   source      = "init_scripts/"
+#   destination = "/tmp/init_scripts"
+#   connection {
+#     host        = self.public_ip
+#     type        = "ssh"
+#     agent       = false
+#     private_key = file(var.ec2_private_key_file_path)
+#     user        = "ec2-user"
+#   }
+# }
  
 # provisioner "remote-exec" {
 #   inline = [
