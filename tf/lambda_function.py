@@ -72,7 +72,7 @@ def lambda_handler(event, context):
   
     html_body = ("<html>"
         "<body>"
-        "<p>Dear Admin,</p>"
+        "<p>Estimado profesor,</p>"
         "<br>"
         "<p>{} Ha subido un nuevo fichero llamado {} en la fecha {} y tiene un tamaño de {}.</p>"
         "<p></p>"

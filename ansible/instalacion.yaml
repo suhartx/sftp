@@ -20,39 +20,6 @@
         - curl-devel
         - libxml2-devel       
       state: latest
-  # - name: Configuración del servidor vsftpd
-    # become: true
-    # copy:
-      # src: vsftpd.conf
-      # dest: /etc/vsftpd/vsftpd.conf
-  # - name: Reinicio del servicio vsftpd
-    # become: true
-    # service:
-      # name: vsftpd
-      # state: restarted
-  # - name: Crear un grupo
-    # become: true
-    # group:
-      # name: sftp
-  # - name: añadir usuario a grupo
-    # become: true
-    # user:
-      # name: sftpuser
-      # password: "{{ 'mypassword' | password_hash('sha512', 'mysecretsalt') }}"
-      # groups: sftp
-  # - name: crear usuario y añadirlo a grupo
-    # become: true
-    # shell:
-      # |
-      # echo "Creating SFTP user..."
-      
-      # sudo groupadd sftp
-      # sudo useradd -m sftpuser -s /bin/bash -g sftp
-      # sudo echo "mypassword" | passwd sftpuser --stdin
-      # sudo chown root /home/sftpuser
-      # sudo chmod 755 /home/sftpuser
-      # sudo mkdir /home/sftpuser/s3
-      # sudo chown sftpuser:sftp /home/sftpuser/s3
 
   - name: Instalar el repositorio EPEL en Amazon Linux
     become: true
@@ -71,7 +38,6 @@
       path: /etc/passwd-s3fs
       mode: '0600'
       
- #######################################################3
   - name: montar bucket
     become: true
     shell:
@@ -127,35 +93,3 @@
       src: usuario.sh
       dest: /home/ec2-user/usuario.sh
       mode: 0755
-#############################################################
-      
-  # - name: crear un directorio 
-    # become: true
-    # command: mkdir /mnt/s3bucket
-  # - name: Montaje del bucket de S3 
-    # become: true
-    # command: s3fs {{ s3_bucket_name }} -o use_cache=/tmp -o allow_other -o uid=1001 -o mp_umask=002 -o multireq_max=5 /mnt/s3bucket
-  # - name: Crear directorio /sftpuser
-    # file:
-      # path: /mnt/s3bucket/sftpuser
-      # state: directory
-  # - name: Crear archivo example.txt dentro de /sftpuser
-    # copy:
-      # content: "hello world"
-      # dest: /mnt/s3bucket/sftpuser/example.txt
-  # - name: Creación del directorio en el bucket de S3
-    # become: true
-    # file:
-      # name: "{{ s3_bucket_name }}"
-      # path: "/sftpuser"
-      # state: present
-    # register: s3_bucket_result
-  # - name: Asignación de permisos al directorio en el bucket de S3
-    # become: true
-    # file:
-      # path: "/mnt/s3bucket/sftpuser"
-      # state: directory
-      # owner: sftpuser
-      # group: sftpuser
-      # mode: 0770
-

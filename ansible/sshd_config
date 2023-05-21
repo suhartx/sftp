@@ -136,12 +136,6 @@ Match Group sftpgroup
      AllowTCPForwarding no
      ForceCommand internal-sftp
      PasswordAuthentication yes
-# Example of overriding settings on a per-user basis
-#Match User anoncvs
-#	X11Forwarding no
-#	AllowTcpForwarding no
-#	PermitTTY no
-#	ForceCommand cvs server
 
 AuthorizedKeysCommand /opt/aws/bin/eic_run_authorized_keys %u %f
 AuthorizedKeysCommandUser ec2-instance-connect

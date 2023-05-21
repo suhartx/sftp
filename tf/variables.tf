@@ -2,7 +2,7 @@ variable "region" {
   default = "eu-west-1"
 }
 variable "bucket_name" {
-  default = "sftpbucketsuhar"
+  default = "sftpstoragesuharsdadasasdasdassd2"
 }
 variable "ec2_key_name" {
  default = "id_rsa"

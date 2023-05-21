@@ -19,8 +19,6 @@ resource "aws_iam_role_policy" "sftp_policy" {
 EOF
 }
 
- 
-
 
 resource "aws_iam_role" "sftp_role" {
   name= "sftp_role"
@@ -41,13 +39,6 @@ resource "aws_iam_role" "sftp_role" {
 EOF
 }
 
-
- 
-#resource "aws_iam_role_policy_attachment" "attach_iam_policy_to_iam_role" {
-#  policy_arn = aws_iam_role_policy.sftp_policy.arn
-#  role       = aws_iam_role.sftp_rorole.name
-#}
-
 data "archive_file" "lambda" {
   type        = "zip"
   source_file = "lambda_function.py"
@@ -65,10 +56,6 @@ resource "aws_lambda_function" "sftp_lambda" {
     aws_lambda_layer_version.sftp_layer.arn,
   ]  
 
-  # (opcional) Configuración para crear un trigger de evento que active la función Lambda
-  # Ejemplo: Crea un trigger de evento de S3
-  #event_source_token = aws_s3_bucket_notification.aws-lambda-trigger.arn
-  #event_source_type = "s3"
 }
 
 
@@ -78,8 +65,6 @@ resource "aws_lambda_layer_version" "sftp_layer" {
   source_code_hash    = data.archive_file.lambda.output_base64sha256
   compatible_runtimes = ["python3.7"]
 }
-
-
 
 resource "aws_s3_bucket_notification" "aws-lambda-trigger" {
   bucket = aws_s3_bucket.images_bucket.id
@@ -97,20 +82,3 @@ resource "aws_lambda_permission" "test" {
   source_arn    = "arn:aws:s3:::${aws_s3_bucket.images_bucket.id}"
 }
 
-#resource "aws_s3_bucket_notification" "s3_notification" {
-#  bucket = aws_s3_bucket.sftps3mixer_bucket.id
-#
-#  # (opcional) Configuración para filtrar eventos específicos
-#  # Ejemplo: Filtra solo eventos de creación de objetos con un prefijo específico
-#  filter_prefix = "uploads/"
-#  
-#  # (opcional) Configuración para agregar eventos específicos a la cola de eventos de Lambda
-#  # Ejemplo: Agrega eventos de creación de objetos y eventos de eliminación
-#  lambda_function {
-#    lambda_function_arn = aws_lambda_function.sftps3mixer_lambda.arn
-#    events = [
-#      "s3:ObjectCreated:*",
-#      "s3:ObjectRemoved:*"
-#    ]
-#  }
-#}
