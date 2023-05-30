@@ -7,6 +7,9 @@ import io
 from botocore.exceptions import ClientError
 import os
 import logging
+import unittest
+import importlib
+import time
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
@@ -39,8 +42,9 @@ def lambda_handler(event, context):
     # let's say you have a new file in Landing folder, the s3 uri is
     #s3_uri = "s3://sftps3mixer/"+file_key
     s3_uri = "s3://{}/{}".format(nombreBucket, file_key)#ORIGEN CON CABECERA
+    s3 = boto3.client("s3")
+    s3_resource = boto3.resource('s3')
 
-    
     #CORREO PROCEDENTE
     
     sender_email_address = 'suhartx@gmail.com'
@@ -60,8 +64,9 @@ def lambda_handler(event, context):
         persona = file_key.split("/")[1]
         tipo =file_key.split("/")[2]
         nombreFichero = unquote_plus(info.get('object', {}).get('key').split("/")[3])
+        nombreFichero2 = nombreFichero.split(".")[0]
         source_dir= "{}/{}/{}/{}".format(file_key.split("/")[0],persona,tipo,nombreFichero)
-        target_dir = "profesor/{}".format(nombreFichero)
+        target_dir = "profesor/{}{}".format(persona,nombreFichero)
         source_dir2="{}/{}".format(nombreBucket, source_dir)
         
      #CABECERA DEL CORREO
@@ -124,14 +129,32 @@ def lambda_handler(event, context):
         if persona.__eq__("profesor") or tipo.__eq__("lectura")or (tipo.__eq__("escritura")and (nombreFichero.__eq__(""))  or tamanyoSinT==0):
             print("mal")
         else:
-            #PREOCEDIMIENTO DE REUBICACIÓN DEL FICHERO
-            s3_resource = boto3.resource('s3')
-            print("funtziona")
-            s3_resource.Object(nombreBucket, target_dir).copy_from(
-            CopySource=source_dir2)
-            print("hasta aqui")
-            # Delete the former object A
-            s3_resource.Object(nombreBucket, source_dir).delete()   
+            if nombreFichero.endswith('.py'):
+                s3.download_file(nombreBucket, source_dir, '/tmp/test.py')
+                # spec = importlib.util.spec_from_file_location("test", '/tmp/test.py')
+                # test = importlib.util.module_from_spec(spec)
+                # spec.loader.exec_module(test)
+                test_loader = unittest.TestLoader()
+                test_suite = test_loader.discover('/tmp', pattern='test.py')
+                # Ejecuta las pruebas unitarias
+                with open('/tmp/test_results.txt', 'w') as f:
+                    test_runner = unittest.TextTestRunner(stream=f, verbosity=2)
+                    test_runner.run(test_suite)
+                    f.flush()  # Fuerza a la salida de datos a escribirse en el archivo
+                    os.fsync(f.fileno())  # Asegura que la salida escrita al archivo es liberada desde el sistema operativo
+                    s3.upload_file('/tmp/test.py', nombreBucket, target_dir)
+                    # Sube el archivo de resultados a S3
+                    s3.upload_file('/tmp/test_results.txt', nombreBucket, 'profesor/'+persona+nombreFichero2 + 'test_results.txt')
+                    s3_resource.Object(nombreBucket, source_dir).delete()   
+
+            else:
+                #PREOCEDIMIENTO DE REUBICACIÓN DEL FICHERO
+                print("funtziona")
+                s3_resource.Object(nombreBucket, target_dir).copy_from(
+                CopySource=source_dir2)
+                print("hasta aqui")
+                # Delete the former object A
+                s3_resource.Object(nombreBucket, source_dir).delete()   
             
   
     except ClientError as e:

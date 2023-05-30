@@ -66,7 +66,7 @@
       mkdir -p /mnt/s3/alumnos/sftpuser/escritura
       mkdir -p /mnt/s3/alumnos/sftpuser/lectura
       chown sftpuser:sftpuser /mnt/s3/alumnos/sftpuser/escritura
-      chown ec2-user:sftpuser /mnt/s3/alumnos/sftpuser/lectura###############################realizado cambio
+      chown ec2-user:sftpuser /mnt/s3/alumnos/sftpuser/lectura
       sudo usermod -a -G sftpuser ec2-user
       ln -s /mnt/s3 /home/ec2-user/s3
       rm -f /mnt/s3/alumnos/sftpuser/.bash_logout /mnt/s3/alumnos/sftpuser/.bash_profile /mnt/s3/alumnos/sftpuser/.bashrc 

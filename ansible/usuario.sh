@@ -25,8 +25,8 @@ echo "$PASS" | passwd --stdin $USER
 
 # Crea los directorios y asigna permisos
 mkdir -p /mnt/s3/alumnos/$USER
-chown root /mnt/s3/alumnos/$USER
-chmod g+rx /mnt/s3/alumnos/$USER
+chown root:root /mnt/s3/alumnos/$USER
+sudo chmod 755 /mnt/s3/alumnos/$USER
 
 mkdir -p /mnt/s3/alumnos/$USER/escritura
 mkdir -p /mnt/s3/alumnos/$USER/lectura
@@ -34,9 +34,8 @@ chown $USER:$USER /mnt/s3/alumnos/$USER/escritura
 chown ec2-user:$USER /mnt/s3/alumnos/$USER/lectura
 
 # Agrega el usuario al grupo sftpuser
-usermod -a -G sftpuser ec2-user
+usermod -a -G $USER ec2-user
 
 # Elimina los archivos de configuración de Bash
 rm -f /mnt/s3/alumnos/$USER/.bash_logout /mnt/s3/alumnos/$USER/.bash_profile /mnt/s3/alumnos/$USER/.bashrc
-
 echo "Usuario $USER creado con éxito."

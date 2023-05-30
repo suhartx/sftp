@@ -55,6 +55,7 @@ resource "aws_lambda_function" "sftp_lambda" {
   layers = [
     aws_lambda_layer_version.sftp_layer.arn,
   ]  
+  timeout = 20
 
 }
 
